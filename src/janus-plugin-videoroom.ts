@@ -1,6 +1,9 @@
+//@ts-ignore */
 import * as Promise from 'bluebird'
-global.Promise = Promise
+//global.Promise = Promise
+//@ts-ignore */
 import * as Janus from 'janus-gateway-js';
+//@ts-ignore */
 import * as Helpers from 'janus-gateway-js/src/helpers';
 import attachmediastream from './attachmediastream'
 
@@ -24,11 +27,12 @@ export interface JoinedInfo {
   publishers: any[];
 }
 function VideoroomPlugin() {
-  Janus.MediaPlugin.apply(this, arguments);
+  //@ts-ignore */
+  Janus.MediaPlugin.apply(this , arguments);
 }
 //TODO: convert to  class VideoroomPlugin{
 VideoroomPlugin.NAME = 'janus.plugin.videoroom';
-VideoroomPlugin.super_ = null;
+VideoroomPlugin.super_ = {};
 Helpers.inherits(VideoroomPlugin, Janus.MediaPlugin);
 Janus.Plugin.register(VideoroomPlugin.NAME, VideoroomPlugin);
 
@@ -41,25 +45,25 @@ VideoroomPlugin.prototype.processLocalVideo = function (option : any , joinedInf
   option = option || {};
   option = Helpers.extend({ audio: true, video: true }, option);
   var self = this;
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<any>((resolve : any) => {
     self.getUserMedia(option)
-      .then(function (stream) {
+      .then(function (stream : any) {
         self.createPeerConnection();
-        stream.getTracks().forEach(function (track) {
+        stream.getTracks().forEach(function (track : any) {
           self.addTrack(track, stream);
         });
       })
       .then(function () {
         return self.createOffer();
       })
-      .then(function (jsep) {
+      .then(function (jsep : any) {
         return self.configure(option, jsep)
       })
-      .then(function (response) {
+      .then(function (response : any) {
         var jsep = response.get('jsep');
         if (jsep) {
           self.setRemoteSDP(jsep);
-          console.debug();
+          //console.debug();
           self.processIncomeMessagePublishers(joinedInfo.publishers);
           resolve(jsep)
         }
@@ -68,12 +72,12 @@ VideoroomPlugin.prototype.processLocalVideo = function (option : any , joinedInf
 };
 VideoroomPlugin.prototype.processRemoteVideo = function (roomId: number, attachedJsep: RTCSessionDescription) {
   var self = this;
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<any>((resolve: any) => {
     self.createAnswer(attachedJsep, { audio: false, video: false })
-      .then(function (jsepResult) {
+      .then(function (jsepResult : any) {
         return self.start(roomId, jsepResult);
       })
-      .then(function (response) {
+      .then(function (response : any) {
         //TODO check error
         // started: "ok"
         resolve()
@@ -137,11 +141,12 @@ VideoroomPlugin.prototype.offerStream = function (stream, offerOptions, configur
  * @fulfilled {RTCSessionDescription}
  */
 VideoroomPlugin.prototype.sendSDP = function (jsep: any, configureOptions: any) {
+  let _self = this;
   return this.configure(configureOptions, jsep)
     .then(function (response: any) {
       var jsep = response.get('jsep');
       if (jsep) {
-        this.setRemoteSDP(jsep);
+        _self.setRemoteSDP(jsep);
         return jsep;
       }
       return Promise.reject(new Error('Failed sendSDP. No jsep in response.'));
@@ -153,7 +158,7 @@ VideoroomPlugin.prototype.sendSDP = function (jsep: any, configureOptions: any) 
  * @returns {Promise}
  * @fulfilled {JanusPluginMessage} list
  */
-VideoroomPlugin.prototype._listParticipants = function (options) {
+VideoroomPlugin.prototype._listParticipants = function (options : any) {
   var body = Helpers.extend({ request: 'listparticipants' }, options);
   return this.sendWithTransaction({ body: body });
 };
@@ -164,11 +169,12 @@ VideoroomPlugin.prototype._listParticipants = function (options) {
  * @returns {Promise}
  * @fulfilled {JanusPluginMessage} response
  */
-VideoroomPlugin.prototype._join = function (id, options) {
+VideoroomPlugin.prototype._join = function (id : any, options : any) {
+  let _self = this;
   var body = Helpers.extend({ request: 'join' }, options);
   return this.sendWithTransaction({ body: body })
-    .then(function (response) {
-      this.setCurrentEntity(id);
+    .then(function (response : any) {
+      _self.setCurrentEntity(id);
       return response;
     }.bind(this));
 };
@@ -198,7 +204,8 @@ VideoroomPlugin.prototype.joinRoom = function (options: joinOption) {
   }
   return this.sendWithTransaction({ janus: "message", body: JoinOptions })
 }
-VideoroomPlugin.prototype.start = function (roomId, jsep: any) {
+//@ts-ignore
+VideoroomPlugin.prototype.start = function (roomId : string, jsep: any) {
   // jsep type: "answer"
   return this.sendWithTransaction({
     janus: "message", body: { request: "start", room: roomId },
@@ -206,7 +213,7 @@ VideoroomPlugin.prototype.start = function (roomId, jsep: any) {
   })
 }
 // Helper methods to attach/reattach a stream to a video element (previously part of adapter.js)
-VideoroomPlugin.prototype.attachMediaStream = function (element, stream) {
+VideoroomPlugin.prototype.attachMediaStream = function (element : any, stream : any) {
   if (!element) {
     throw new Error(" attachMediaStream  element is null ")
     return false;
@@ -215,7 +222,7 @@ VideoroomPlugin.prototype.attachMediaStream = function (element, stream) {
     return attachmediastream(element, stream);
   }
   catch (e) {
-    console.debug(e);
+    //console.debug(e);
     //TODO:  event error call
     throw new Error("Error attaching stream to element")
     //Janus.error("Error attaching stream to element");
@@ -233,7 +240,7 @@ VideoroomPlugin.prototype.attachMediaStream = function (element, stream) {
   }
   */
 };
-VideoroomPlugin.reattachMediaStream = function (to, from) {
+VideoroomPlugin.reattachMediaStream = function (to : any, from : any) {
   try {
     to.srcObject = from.srcObject;
   } catch (e) {
@@ -272,11 +279,12 @@ VideoroomPlugin.prototype.createPeerConnection2 = function (options: any) {
   return this.super_.prototype.createPeerConnection(options);
 };
 
-VideoroomPlugin.prototype.processIncomeMessage = function (message) {
+VideoroomPlugin.prototype.processIncomeMessage = function (message : any) {
   var self = this;
   return Promise.try(function () {
+    //@ts-ignore
     return VideoroomPlugin.super_.prototype.processIncomeMessage.call(self, message);
-  }).then(function (result) {
+  }).then(function (result : any) {
     if (message._plainMessage) {
       var _plainMessage = message._plainMessage;
       var janusType = _plainMessage['janus'];

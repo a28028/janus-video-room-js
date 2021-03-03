@@ -37,12 +37,12 @@ class LiteEvent<T> implements ILiteEvent<T> {
 class JanusRoom {
     _address: string
     _options: any
-    listVideoroomPlugin: Array<Janus.videoroomPlugin>
+    listVideoroomPlugin: Array<Janus.videoroomPlugin> = [];
     JanusClient: Janus.client;
     connection: Janus.Connection;
     session: Janus.Session;
     videoroomPlugin: Janus.videoroomPlugin;
-    roomId: string;
+    roomId: string = "";
     /**
      * first join info result type: "publisher"
      */
@@ -66,7 +66,7 @@ class JanusRoom {
      * @param address "wss://janus.conf.meetecho.com/ws"
      * @param options {keepalive: 'true' }
      */
-    constructor(address, options: any) {
+    constructor(address : string, options: any) {
         this._address = address || "wss://janus.conf.meetecho.com/ws";
         this._options = options || {
             keepalive: 'true'
@@ -104,6 +104,7 @@ class JanusRoom {
     /**
      *janus create new Connection
      */
+    //@ts-ignore
     private async createConnection(): Promise<any> {
         if (!this.connection) {
             let url = 'wss://janus.roomler.live/janus_ws';
@@ -116,6 +117,7 @@ class JanusRoom {
     /**
      *janus create new Session
      */
+    //@ts-ignore
     private async createSession(): Promise<any> {
         if (!this.session) {
             await this.createConnection();
@@ -131,13 +133,13 @@ class JanusRoom {
         await this.createSession();
         if (!this.videoroomPlugin) {
             this.videoroomPlugin = await this.session.attachPlugin(Janus.VideoroomPlugin.NAME);
-            this.videoroomPlugin.on('consent-dialog:stop', (trackInfo => {
+            this.videoroomPlugin.on('consent-dialog:stop', (trackInfo : any) => {
                 var elementinfo: any = { element: null };
                 _self.onNeedVideoLocal.trigger(elementinfo);
                 _self.videoroomPlugin.attachMediaStream(elementinfo.element, trackInfo.stream);
-                console.log('pc:track:local');
-            }));
-            this.videoroomPlugin.on('videoroom-remote-feed:publishers', (data) => { this.videoroomRremoteFeedPublishers(_self, data) });
+                //console.log('pc:track:local');
+            });
+            this.videoroomPlugin.on('videoroom-remote-feed:publishers', (data : any) => { this.videoroomRremoteFeedPublishers(_self, data) });
             /**
              *  when remote-feed not video and audio published
              */
@@ -154,7 +156,7 @@ class JanusRoom {
      * @param _self JanusRoom
      * @param data {publishers}
      */
-    private async videoroomRremoteFeedPublishers(_self: JanusRoom, data: any) {
+    private async videoroomRremoteFeedPublishers(_self: JanusRoom, data: any)  {
         if (data.publishers) {
             let publishers: Array<any> = data.publishers;
             for (const feedInfo of publishers) {

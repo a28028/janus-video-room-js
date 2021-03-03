@@ -1,9 +1,9 @@
 import adapter from 'webrtc-adapter';
 //https://github.com/otalk/attachMediaStream/blob/master/attachmediastream.js
-export default function (el, stream, options = null) {
+export default function (el : any, stream : any, options : any = null) {
     var item;
     var element = el;
-    var opts = {
+    var opts : any = {
         autoplay: true,
         mirror: false,
         muted: false,
@@ -12,19 +12,20 @@ export default function (el, stream, options = null) {
     };
 
     if (options) {
-        for (item in options) {
+        for (item   in options) {
             opts[item] = options[item];
         }
     }
 
     if (!element) {
+        //@ts-ignore
         element = document.createElement(opts.audio ? 'audio' : 'video');
     } else if (element.tagName.toLowerCase() === 'audio') {
         opts.audio = true;
     }
 
     if (opts.disableContextMenu) {
-        element.oncontextmenu = function (e) {
+        element.oncontextmenu = function (e : any) {
             e.preventDefault();
         };
     }
@@ -48,6 +49,7 @@ export default function (el, stream, options = null) {
         element.srcObject = stream;
     } catch (e) {
         try {
+            //@ts-ignore
             element.src = URL.createObjectURL(stream);
         } catch (e) {
             throw new Error("Error attaching stream to element");
