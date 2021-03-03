@@ -1,4 +1,4 @@
 import Janus from "./room"
-module.exports = {
-    Janus: Janus
+export  {
+    Janus
 }
