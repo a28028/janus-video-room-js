@@ -5,7 +5,25 @@ javascript web browser   client that implements a subset of the janus-gateway-js
 ## Example of usage
 demo project https://github.com/a28028/janus-video-room-js-demo
 
+```html
+<!DOCTYPE html>
+<html>
 
+<head>
+  <meta charset="utf-8" />
+  <title>Getting Started</title>
+</head>
+
+<body>
+  <h2>local</h2>
+  <video id="localvideo" width="100%" height="100%" autoplay="" playsinline="" muted="muted"></video>
+  <h2>Remote</h2>
+  <div id="remotvideocontainer"></div>
+  <script src="bundle.js"></script>
+</body>
+
+</html>
+```
 ```js
 let sampelRoom = new janusvideo.Janus.JanusRoom("wss://janus.conf.meetecho.com/ws", { keepalive: 'true' });
 /**
