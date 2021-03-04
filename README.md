@@ -1,5 +1,8 @@
 # janus-video-room-js
-javascript web browser   client that implements a subset of the janus-gateway-js of the Janus WebRTC Gateway.
+javascript web browser   client that implements a subset of the janus-gateway-js of the Janus WebRTC Gateway...
+## dependencies
+janus-video-room-js  is a curated set of user interface  video room built on top of janus-gateway-js. 
+https://github.com/sjkummer/janus-gateway-js
 ## Install
 `npm i janus-video-room-js --save`
 ## Example of usage
