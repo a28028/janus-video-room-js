@@ -66,7 +66,7 @@ class JanusRoom {
      * @param address "wss://janus.conf.meetecho.com/ws"
      * @param options {keepalive: 'true' }
      */
-    constructor(address : string, options: any) {
+    constructor(address: string, options: any) {
         this._address = address || "wss://janus.conf.meetecho.com/ws";
         this._options = options || {
             keepalive: 'true'
@@ -133,13 +133,13 @@ class JanusRoom {
         await this.createSession();
         if (!this.videoroomPlugin) {
             this.videoroomPlugin = await this.session.attachPlugin(Janus.VideoroomPlugin.NAME);
-            this.videoroomPlugin.on('consent-dialog:stop', (trackInfo : any) => {
+            this.videoroomPlugin.on('consent-dialog:stop', (trackInfo: any) => {
                 var elementinfo: any = { element: null };
                 _self.onNeedVideoLocal.trigger(elementinfo);
                 _self.videoroomPlugin.attachMediaStream(elementinfo.element, trackInfo.stream);
                 //console.log('pc:track:local');
             });
-            this.videoroomPlugin.on('videoroom-remote-feed:publishers', (data : any) => { this.videoroomRremoteFeedPublishers(_self, data) });
+            this.videoroomPlugin.on('videoroom-remote-feed:publishers', (data: any) => { this.videoroomRremoteFeedPublishers(_self, data) });
             /**
              *  when remote-feed not video and audio published
              */
@@ -156,7 +156,7 @@ class JanusRoom {
      * @param _self JanusRoom
      * @param data {publishers}
      */
-    private async videoroomRremoteFeedPublishers(_self: JanusRoom, data: any)  {
+    private async videoroomRremoteFeedPublishers(_self: JanusRoom, data: any) {
         if (data.publishers) {
             let publishers: Array<any> = data.publishers;
             for (const feedInfo of publishers) {
@@ -230,6 +230,19 @@ class JanusRoom {
         let dataAttached = await videoroomPlugin.joinRoom(options);
         return { dataAttached: dataAttached, videoroomPlugin: videoroomPlugin }
     }
+    /**
+     * To stop publishing and tear down the related PeerConnection, you can use the unpublish request, which requires no arguments as the context is implicit:
+     */
+    async stopPublishing() {
+        await this.createVideoRoomPlugin();
+        return await this.videoroomPlugin.stopPublishing();
+    }
+    async startPublishing() {
+        await this.createVideoRoomPlugin();
+        return await this.videoroomPlugin.processLocalVideo({ audio: true, video: true }, this.joinedInfo);
+        return await this.videoroomPlugin.stopPublishing();
+    }
+    
     async publishOwnFeed() {
         // /	$('#publish').attr('disabled', true).unbind('click');
 
