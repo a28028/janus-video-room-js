@@ -4,6 +4,7 @@ export interface joinOption {
     ptype: string;
     display: string;
     feed: number;
+    pin: any;
 }
 /**
  * Janus Server Response Structure after joined
