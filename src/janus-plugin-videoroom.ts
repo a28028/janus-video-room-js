@@ -11,7 +11,8 @@ export interface joinOption {
   room: string;
   ptype: string;
   display: string;
-  feed: number
+  feed: number;
+  pin: any;
 }
 
 /**
@@ -199,6 +200,9 @@ VideoroomPlugin.prototype.joinRoom = function (options: joinOption) {
   let JoinOptions: any = {
     request: "join", room: options.room, ptype: options.ptype, display: options.display
   };
+  if(options.pin){
+    JoinOptions.pin =options.pin;
+  }
   if (options.ptype == "subscriber") {
     JoinOptions.feed = options.feed;
   }
@@ -210,6 +214,23 @@ VideoroomPlugin.prototype.start = function (roomId : string, jsep: any) {
   return this.sendWithTransaction({
     janus: "message", body: { request: "start", room: roomId },
     jsep: jsep
+  })
+}
+VideoroomPlugin.prototype.stopPublishing = function () {
+  var self = this;
+  return new Promise<any>((resolve: any) => {
+    return this.sendWithTransaction({
+      janus: "message", body: { request: "unpublish" }
+    })
+      .then(function (response : any) {
+        //TODO check error
+        // started: "ok"
+        self.closePeerConnection();
+        resolve(response)
+      });
+  })
+  return this.sendWithTransaction({
+    janus: "message", body: { request: "unpublish" }
   })
 }
 // Helper methods to attach/reattach a stream to a video element (previously part of adapter.js)
