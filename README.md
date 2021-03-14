@@ -1,3 +1,90 @@
 # janus-video-room-js
-javascript web browser   client that implements a subset of the janus-gateway-js of the Janus WebRTC Gateway.
-npm i janus-video-room-js --save
+javascript web browser   client that implements a subset of the janus-gateway-js of the Janus WebRTC Gateway...
+## dependencies
+janus-video-room-js  is a curated set of user interface  video room built on top of janus-gateway-js. 
+https://github.com/sjkummer/janus-gateway-js
+## Install
+`npm i janus-video-room-js --save`
+## Example of usage
+demo project https://github.com/a28028/janus-video-room-js-demo
+
+```html
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Getting Started</title>
+</head>
+
+<body>
+  <h2>local</h2>
+  <video id="localvideo" width="100%" height="100%" autoplay="" playsinline="" muted="muted"></video>
+  <h2>Remote</h2>
+  <div id="remotvideocontainer"></div>
+  <script src="bundle.js"></script>
+</body>
+
+</html>
+```
+```js
+let sampelRoom = new janusvideo.Janus.JanusRoom("wss://janus.conf.meetecho.com/ws", { keepalive: 'true' });
+/**
+ * on joined room success
+ */
+sampelRoom.eventRoomjoined.on((info: any) => {
+  console.debug("Roomjoined");
+  console.debug(info);
+})
+sampelRoom.eventNeedVideoLocal.on((elementinfo: any) => {
+  elementinfo.element = document.getElementById('localvideo');
+})
+sampelRoom.eventNeedVideoRemote.on((event: any) => {
+  if (!document.getElementById(event.feedInfo.id)) {
+    const video = document.createElement('video');
+    video.id = event.feedInfo.id;
+    video.autoplay = true;
+    if(document.getElementById(`h${event.feedInfo.id}`)){ document.getElementById(`h${event.feedInfo.id}`).remove() }
+    document.getElementById('remotvideocontainer').innerHTML += (`<h2 id="h${event.feedInfo.id}"> ${event.feedInfo.id} display : ${event.feedInfo.display} </h2>`)
+    document.getElementById('remotvideocontainer').appendChild(video);
+    event.element = video;
+  }
+  else {
+    event.element = document.getElementById(event.feedInfo.id);
+  }
+  let spanID = "no_video_" + event.feedInfo.id.toString();
+  let elementSpan = document.getElementById(spanID);
+  if(elementSpan){ elementSpan.remove()}
+})
+/**
+ *  On Leaving feed from room
+ */
+sampelRoom.eventOnLeaving.on((feedID: number) => {
+  let elementVideo = document.getElementById(feedID.toString());
+  let spanID = "no_video_" + feedID.toString();
+  let elementSpan = document.getElementById(spanID);
+  let h2 = document.getElementById(`h${feedID}`);
+  if (elementVideo) { elementVideo.remove();}
+  if(elementSpan){ elementSpan.remove()}
+  if(h2){ h2.remove()}
+ })
+/**
+ * on Unpublished  video and  audio 
+ */
+sampelRoom.eventOnUnpublished.on((feedID: number) => {
+  let elementVideo = document.getElementById(feedID.toString());
+  let spanID = "no_video_" + feedID.toString();
+  //let elementSpan = document.getElementById(spanID);
+  if (elementVideo) {
+    let elementSpan = document.createElement('span');
+    elementSpan.id = spanID;
+    elementSpan.innerHTML = "no video  publish";
+    elementVideo.parentNode.replaceChild(elementSpan, elementVideo);
+    //document.getElementById(feedID.toString()).remove();
+  }
+ })
+
+sampelRoom.joinRoom(1234, 'fullname2').then((data: any) => {
+  console.log('joinRoom 1234');
+})
+```
